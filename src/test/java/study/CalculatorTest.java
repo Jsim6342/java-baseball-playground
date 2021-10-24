@@ -1,75 +1,76 @@
 package study;
 
-import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.NullAndEmptySource;
-import org.junit.jupiter.params.provider.ValueSource;
 
-import java.util.Scanner;
 
 import static org.assertj.core.api.Assertions.*;
 
 public class CalculatorTest {
 
-    private Calculator calculator = new Calculator();
+    private Calculator calculator;
 
     @Test
-    void plusTest() throws Exception {
-        int result = calculator.StringCalculator("1 + 2");
+    void plusTest() {
+        calculator = new Calculator("1 + 2");
+        int result = calculator.getResult();
         assertThat(result).isEqualTo(3);
     }
 
     @Test
-    void minusTest() throws Exception {
-        int result = calculator.StringCalculator("6 - 3");
+    void minusTest() {
+        calculator = new Calculator("6 - 3");
+        int result = calculator.getResult();
         assertThat(result).isEqualTo(3);
     }
 
     @Test
-    void multiplicationTest() throws Exception {
-        int result = calculator.StringCalculator("5 * 3");
+    void multiplicationTest() {
+        calculator = new Calculator("5 * 3");
+        int result = calculator.getResult();
         assertThat(result).isEqualTo(15);
     }
 
     @Test
-    void divisionTest() throws Exception {
-        int result = calculator.StringCalculator("6 / 3");
+    void divisionTest() {
+        calculator = new Calculator("6 / 3");
+        int result = calculator.getResult();
         assertThat(result).isEqualTo(2);
     }
 
     @Test
-    void stringCalculatorTest() throws Exception {
-        int result = calculator.StringCalculator("2 + 3 * 4 / 2");
+    void stringCalculatorTest() {
+        calculator = new Calculator("2 + 3 * 4 / 2");
+        int result = calculator.getResult();
         assertThat(result).isEqualTo(10);
 
     }
 
+    @DisplayName("0 으로 나눌 시 테스트")
     @Test
-    void inputTest() {
-        assertThatExceptionOfType(NumberFormatException.class)
-                .isThrownBy(() -> {
-                    calculator.StringCalculator("+ 1 3");
-                });
+    void divideZeroTest() {
+        assertThatIllegalArgumentException().isThrownBy(() -> {
+            calculator = new Calculator("2 / 0");
+            calculator.getResult();
+        });
     }
 
+    @DisplayName("입력 값이 null 이거나 빈 공백 문자일 경우")
     @Test
-    void operationExceptionTest() {
-        assertThatExceptionOfType(Exception.class)
-                .isThrownBy(() -> {
-                    calculator.OperationCalculator(1, "$", 2);
-                }).withMessageContaining("잘못 입력하셨습니다.");
+    void inputNullOrEmptyTest(){
+        assertThatIllegalArgumentException().isThrownBy(() -> {
+            Calculator calculator = new Calculator("2 +   * 2 / 2");
+            int result = calculator.getResult();
+        });
     }
 
-    @ParameterizedTest
-    @NullAndEmptySource
-    void nullTest(String input) {
-        assertThatExceptionOfType(Exception.class)
-                .isThrownBy(() -> {
-                    calculator.StringCalculator(input);
-                });
+    @DisplayName("사칙연산 기호가 아닌 경우")
+    @Test
+    void checkPermittedOperator(){
+        assertThatIllegalArgumentException().isThrownBy(() -> {
+            Calculator calculator = new Calculator("2 $ 6 * 5 / 4");
+            int result = calculator.getResult();
+        });
     }
-
 
 }
